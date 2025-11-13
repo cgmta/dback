@@ -1,4 +1,4 @@
-# Improving the Accuracy of Dense Retrieval on Quantized Indexes via Gradient Optimization of Target Embeddings
+# Improving the Accuracy of Dense Retrieval on Quantized Indexes via Gradient Optimization of the Target Embeddings
 
 ## 🚀 Overview
 

@@ -1,0 +1,75 @@
+# ----------------------------------------------------------------------------
+# Default configuration for training a DPR embedding model
+# ----------------------------------------------------------------------------
+
+# ------------------------------
+# System Settings & Logging
+# ------------------------------
+backend: nccl                   # DDP backend: 'nccl' (GPU) or 'gloo' (CPU)
+device: cuda                    # Training device
+dtype: bfloat16                 # Data type: float32, float16, or bfloat16
+complie: False                  # Use PyTorch 2.0 compile (for speed)
+log_interval: 20                 # Log every N steps
+wandb_log: False                 # Enable or disable logging
+wandb_project: mydprv1
+wandb_run_name: embupd
+
+# ------------------------------
+# Training Parameters & Optimization Settings
+# ------------------------------
+epochs: 20            # Total training epochs
+batch_size: 32        # Controls resource usage
+n_docs: 500           # Number of documents per query
+temperature: 16        # Important for training precision
+# ------------------------------
+# LR & Optimizer (AdamW)
+# ------------------------------
+decay_lr: True        # Enable learning rate decay
+lr: 2e-6   # Maximum learning rate
+min_lr: 1e-6          # Minimum learning rate
+ctx_lr: 1e-6 # Learning rate for context encoder
+max_iters: 60000      # Total training iterations
+adam_epsilon: 1e-8    # Epsilon for Adam optimizer
+weight_decay: 0.0
+beta1: 0.9
+beta2: 0.95
+grad_clip: 1.0        # Clip gradients at this value (disable with 0.0)
+warmup_steps: 20      # Number of warmup steps
+lr_decay_iters: 60000 # Should be ~= max_iters per Chinchilla
+
+# ------------------------------
+# Evaluation & Index Updates
+# ------------------------------
+test: True            # Run test set evaluation if True
+test_interval: 1600   # Evaluate model after every N steps
+update_ctx_emb: True  # Update embeddings dynamically
+index_interval: 1600  # Must be a multiple of test_interval
+eval: False            # Evaluate model after every N steps
+eval_interval: 1600 # Avoid frequent evaluations if testing is enough
+# large than max_match, save checkpoints to output dir
+init_from: False      # Load model from this checkpoint if not None
+max_match: 6000       # Top-k matches during training, used for saving checkpoints
+out_dir: ./train_output/trivia
+
+# ------------------------------
+# Dataset Paths
+# ------------------------------
+# Retrieve dataset
+passage: ./wiki_passages/wiki_hf_passages
+passage_index: ./wiki_passages/ance_trivia_index_emb/compress_index
+passage_embed: ./wiki_passages/ance_trivia_index_emb/reconstructed_embeddings.npy
+# Training and Test dataset 
+train_data: ./Trivia_QA/trivia_hf_dataset
+test_data: ./Trivia_QA/trivia_test/trivia-test.csv
+
+# ------------------------------
+# Model & Tokenizer
+# ------------------------------
+n_embd: 768
+model_type: dpr
+q_tokenizer: 'castorini/ance-dpr-question-multi'  
+q_name_or_path: 'castorini/ance-dpr-question-multi'  
+
+hydra:
+  job:
+    chdir: true   
